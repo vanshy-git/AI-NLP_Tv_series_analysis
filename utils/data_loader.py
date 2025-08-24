@@ -10,10 +10,10 @@ def load_subtitles_dataset(dataset_path):
     for path in subtitles_paths:
 
         #Read Lines
-        with open(path,'r') as file:
+        with open(path,'r',encoding="utf-8",errors="ignore") as file:
             lines = file.readlines()
             lines = lines[27:]
-            lines =  [ ",".join(line.split(',')[9:])  for line in lines ]
+            lines =  [ ",".join(line.split(',')[27:])  for line in lines ]
         
         lines = [ line.replace('\\N',' ') for line in lines]
         script = " ".join(lines)
