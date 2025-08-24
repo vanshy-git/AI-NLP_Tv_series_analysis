@@ -1,21 +1,19 @@
 import gradio as gr
 import sys
 import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from theme_classifier.theme_classifier import ThemeClassifier
+from theme_classifier import ThemeClassifier
+from character_network import NamedEntityRecognizer, CharacterNetworkGenerator
 
-
-
-
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 def get_themes(theme_list_str,subtitles_path,save_path):
     theme_list = theme_list_str.split(',')
     theme_classifier = ThemeClassifier(theme_list)
     output_df = theme_classifier.get_themes(subtitles_path,save_path)
-    available_themes = [t for t in theme_list if t in output_df.columns]
-    output_df = output_df[available_themes]
-
 
     # Remove dialogue from the theme list
     theme_list = [theme for theme in theme_list if theme != 'dialogue']
@@ -37,6 +35,23 @@ def get_themes(theme_list_str,subtitles_path,save_path):
 
     return output_chart
 
+def get_character_network(subtitles_path,ner_path):
+    ner = NamedEntityRecognizer()
+    ner_df = ner.get_ners(subtitles_path,ner_path)
+
+    character_network_generator = CharacterNetworkGenerator()
+    relationship_df = character_network_generator.generate_character_network(ner_df)
+    html = character_network_generator.draw_network_graph(relationship_df)
+
+    return html
+
+
+
+    output = character_chatbot.chat(message, history)
+    output = output['content'].strip()
+    return output
+
+
 def main():
     with gr.Blocks() as iface:
         # Theme Classification Section
@@ -53,7 +68,39 @@ def main():
                         get_themes_button =gr.Button("Get Themes")
                         get_themes_button.click(get_themes, inputs=[theme_list,subtitles_path,save_path], outputs=[plot])
 
-                       
+        # Character Network Section
+        with gr.Row():
+            with gr.Column():
+                gr.HTML("<h1>Character Network (NERs and Graphs)</h1>")
+                with gr.Row():
+                    with gr.Column():
+                        network_html = gr.HTML()
+                    with gr.Column():
+                        subtitles_path = gr.Textbox(label="Subtutles or Script Path")
+                        ner_path = gr.Textbox(label="NERs save path")
+                        get_network_graph_button = gr.Button("Get Character Network")
+                        get_network_graph_button.click(get_character_network, inputs=[subtitles_path,ner_path], outputs=[network_html])
+
+        # Text Classification with LLMs
+        with gr.Row():
+            with gr.Column():
+                gr.HTML("<h1>Text Classification with LLMs</h1>")
+                with gr.Row():
+                    with gr.Column():
+                        text_classification_output = gr.Textbox(label="Text Classification Output")
+                    with gr.Column():
+                        text_classifcation_model = gr.Textbox(label='Model Path')
+                        text_classifcation_data_path = gr.Textbox(label='Data Path')
+                        text_to_classify = gr.Textbox(label='Text input')
+                        classify_text_button = gr.Button("Clasify Text (Jutsu)")
+                       # classify_text_button.click(classify_text, inputs=[text_classifcation_model,text_classifcation_data_path,text_to_classify], outputs=[text_classification_output])
+
+        # Character Chatbot Section
+        with gr.Row():
+            with gr.Column():
+                gr.HTML("<h1>Character Chatbot</h1>")
+               
+
     iface.launch(share=True)
             
 
