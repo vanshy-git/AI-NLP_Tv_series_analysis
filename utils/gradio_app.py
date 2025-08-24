@@ -1,5 +1,11 @@
 import gradio as gr
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 from theme_classifier.theme_classifier import ThemeClassifier
+
+
 
 
 
@@ -27,7 +33,6 @@ def get_themes(theme_list_str,subtitles_path,save_path):
     )
 
     return output_chart
-
 
 def main():
     with gr.Blocks() as iface:
