@@ -1,2 +1,2 @@
 from .named_entity_recognizer import NamedEntityRecognizer
-from .character_network_generator import CharacterNetworkGenerator
+from .character_netowork_generator import CharacterNetworkGenerator

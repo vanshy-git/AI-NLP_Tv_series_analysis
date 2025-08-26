@@ -7,7 +7,12 @@ import sys
 import pathlib
 folder_path = pathlib.Path().parent.resolve()
 sys.path.append(os.path.join(folder_path, '../'))
+import sys, os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from utils import load_subtitles_dataset
+
+
+
 
 class NamedEntityRecognizer:
     def __init__(self):
@@ -37,9 +42,6 @@ class NamedEntityRecognizer:
         return ner_output
 
     def get_ners(self,dataset_path,save_path=None):
-        import os
-        print(save_path, os.path.isfile(save_path))
-
         if save_path is not None and os.path.exists(save_path):
             df = pd.read_csv(save_path)
             df['ners'] = df['ners'].apply(lambda x: literal_eval(x) if isinstance(x,str) else x)
